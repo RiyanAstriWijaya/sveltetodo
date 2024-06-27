@@ -1,6 +1,7 @@
 <script lang="ts">
 
 let editing = false;
+let limit = '5';
 
 function editPosting() {
   editing = true;
@@ -136,13 +137,10 @@ async function savePost() {
       <!-- Footer -->
       <div class="px-6 py-4 grid gap-3 md:flex md:justify-between md:items-center border-t border-gray-200">
         <div class="max-w-sm space-y-3">
-          <select class="py-2 px-3 pe-9 block border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500">
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-            <option selected>5</option>
-            <option>6</option>
+          <select bind:value={limit} class="py-2 px-3 pe-9 block border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500">
+            <option value="3">3</option>
+            <option value="5">5</option>
+            <option value="10">10</option>      
           </select>
         </div>
 
