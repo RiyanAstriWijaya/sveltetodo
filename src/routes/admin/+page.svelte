@@ -5,14 +5,27 @@
 let editing = false;
 let limit = '5';
 let page = 1;
+let search = '';
 
-let posts = [];
+let posts : any[]=[];
 let totalPage = 0;
   async function loadBlog(){
-  const respon = await fetch(`/api/posting?page=${page} & limit=${limit}`);
+  const respon = await fetch(`/api/posting?page=${page}&limit=${limit}&search=${search}`);
   const data = await respon.json();
   posts = data.posts;
   totalPage = data.totalPage;
+}
+function reloadData(){
+  page = 1;
+  loadBlog();
+}
+function nextPage(){
+  page += 1;
+  loadBlog()
+}
+function prevPage(){
+  page -= 1;
+  loadBlog()
 }
 
 onMount(()=>{
@@ -53,6 +66,7 @@ async function savePost() {
   });
 
   cancelEdit();
+  loadBlog()
 }
 </script>
 
@@ -68,7 +82,7 @@ async function savePost() {
         <div class="sm:col-span-1">
           <label for="hs-as-table-product-review-search" class="sr-only">Cari</label>
           <div class="relative">
-            <input type="text" id="hs-as-table-product-review-search" name="hs-as-table-product-review-search" class="py-2 px-3 ps-11 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none" placeholder="Search">
+            <input type="text" bind:value={search} on:keyup={()=>loadBlog()} id="hs-as-table-product-review-search" name="hs-as-table-product-review-search" class="py-2 px-3 ps-11 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none" placeholder="Search">
             <div class="absolute inset-y-0 start-0 flex items-center pointer-events-none ps-4">
               <svg class="flex-shrink-0 size-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
             </div>
@@ -112,27 +126,28 @@ async function savePost() {
         </thead>
 
         <tbody class="divide-y divide-gray-200">
+          {#each posts as post }                      
           <tr class="bg-white hover:bg-gray-50">
             <td class="size-px align-top w-[75%]">
               <div class="block p-6">
                 <div class="flex items-start gap-x-4">
-                  <img class="flex-shrink-0 w-[38px] rounded-lg" src="https://images.unsplash.com/photo-1572307480813-ceb0e59d8325?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=320&h=320&q=80" alt="gambar">
+                  <img class="flex-shrink-0 w-[38px] rounded-lg" src={post.gambar} alt="gambar">
                   <div>
-                    <span class="block text-lg font-medium text-gray-800">Brown Hat</span>
+                    <span class="block text-lg font-medium text-gray-800"> {post.judul}</span>
                     <hr>
-                    <p class="mt-2 text-sm">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Debitis architecto deleniti, optio vitae suscipit atque quia, accusantium accusamus corrupti vero praesentium iure id aperiam eaque dolores, ipsa aliquid perspiciatis. Fuga?</p>
+                    <p class="mt-2 text-sm">{post.deskripsi}</p>
                   </div>
                 </div>
               </div>
             </td>
             <td class="size-px whitespace-nowrap align-top">
               <span class="block p-6">
-                <span class="text-sm text-gray-600">Programming</span>
+                <span class="text-sm text-gray-600">{post.namaKategori}</span>
               </span>
             </td>
             <td class="size-px whitespace-nowrap align-top">
               <span class="block p-6">
-                <span class="text-sm text-gray-600">10 Jan 2022</span>
+                <span class="text-sm text-gray-600">{new Date(post.created_at).toLocaleDateString('id',{weekday:'long', year:'numeric', month:'short', day:'numeric'})}</span>
               </span>
             </td>
             <td class="size-px whitespace-nowrap align-top">
@@ -146,6 +161,7 @@ async function savePost() {
               </div>
             </td>
           </tr>
+          {/each}
         </tbody>
       </table>
       <!-- End Table -->
@@ -153,7 +169,7 @@ async function savePost() {
       <!-- Footer -->
       <div class="px-6 py-4 grid gap-3 md:flex md:justify-between md:items-center border-t border-gray-200">
         <div class="max-w-sm space-y-3">
-          <select bind:value={limit} class="py-2 px-3 pe-9 block border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500">
+          <select bind:value={limit} on:change={()=> reloadData()} class="py-2 px-3 pe-9 block border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500">
             <option value="3">3</option>
             <option value="5">5</option>
             <option value="10">10</option>      
@@ -162,12 +178,12 @@ async function savePost() {
 
         <div>
           <div class="inline-flex gap-x-2">
-            <button disabled={page == 1} type="button" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none">
+            <button on:click={()=>prevPage()} disabled={page == 1} type="button" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none">
               <svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
               Prev
             </button>
 
-            <button disabled={page == totalPage || totalPage == 0} type="button" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none">
+            <button disabled={page == totalPage || totalPage == 0} on:click={()=>nextPage()} type="button" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none">
               Next
               <svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
             </button>

@@ -10,13 +10,19 @@ export async function GET({ url }) {
     totalPage: 0,
   };
   const page = Number(url.searchParams.get("page")) || 1;
-  const limit = Number(url.searchParams.get("limit")) || 5;
+  const limit = Number(url.searchParams.get("limit") || 5);
+  const search = url.searchParams.get("search") || "";
+
+  console.log(limit);
   //total page
-  const totalData = await db.query(`SELECT COUNT(*) as total FROM post`);
+  const totalData = await db.query(`SELECT COUNT(*) as total FROM post ` + (search ? `WHERE judul LIKE ?` : ""), search ? [`%${search}%`] : null);
   data.totalPage = Math.ceil(totalData[0].total / limit);
   //data post
   const start = (page - 1) * limit;
-  const posts = await db.query("SELECT * FROM post ORDER BY created_at DESC LIMIT ?, ?", [start, limit]);
+  const posts = await db.query(
+    `SELECT post.*, kategori.nama AS namaKategori FROM post LEFT JOIN kategori ON post.kategori = kategori.id ${search ? "WHERE judul LIKE ?" : ""}   ORDER BY created_at DESC LIMIT ${start}, ${limit}`,
+    search ? [`%${search}%`] : null
+  );
   data.posts = posts;
 
   return json(data);
