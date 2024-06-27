@@ -2,6 +2,26 @@ import { getPool } from "$lib/server/db/config";
 import { json } from "@sveltejs/kit";
 import { writeFileSync } from "fs";
 
+export async function GET({ url }) {
+  const db = getPool();
+
+  const data = {
+    posts: [],
+    totalPage: 0,
+  };
+  const page = Number(url.searchParams.get("page")) || 1;
+  const limit = Number(url.searchParams.get("limit")) || 5;
+  //total page
+  const totalData = await db.query(`SELECT COUNT(*) as total FROM post`);
+  data.totalPage = Math.ceil(totalData[0].total / limit);
+  //data post
+  const start = (page - 1) * limit;
+  const posts = await db.query("SELECT * FROM post ORDER BY created_at DESC LIMIT ?, ?", [start, limit]);
+  data.posts = posts;
+
+  return json(data);
+}
+
 export async function POST({ request }) {
   const db = getPool();
 
