@@ -13,7 +13,7 @@ export async function GET({ url }) {
   const limit = Number(url.searchParams.get("limit") || 5);
   const search = url.searchParams.get("search") || "";
 
-  console.log(limit);
+  // console.log(limit);
   //total page
   const totalData = await db.query(`SELECT COUNT(*) as total FROM post ` + (search ? `WHERE judul LIKE ?` : ""), search ? [`%${search}%`] : null);
   data.totalPage = Math.ceil(totalData[0].total / limit);
