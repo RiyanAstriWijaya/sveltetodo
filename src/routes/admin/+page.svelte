@@ -1,7 +1,8 @@
 <script lang="ts">
+  import { PUBLIC_API_URL as API_URL } from '$env/static/public';
   import { onMount } from "svelte";
 
-//komentar
+
 let editing = false;
 let limit = '5';
 let page = 1;
@@ -10,7 +11,7 @@ let search = '';
 let posts : any[]=[];
 let totalPage = 0;
   async function loadBlog(){
-  const respon = await fetch(`/api/posting?page=${page}&limit=${limit}&search=${search}`);
+  const respon = await fetch(`${API_URL}/api/posting?page=${page}&limit=${limit}&search=${search}`);
   const data = await respon.json();
   posts = data.posts;
   totalPage = data.totalPage;
@@ -131,7 +132,7 @@ async function savePost() {
             <td class="size-px align-top w-[75%]">
               <div class="block p-6">
                 <div class="flex items-start gap-x-4">
-                  <img class="flex-shrink-0 w-[38px] rounded-lg" src={post.gambar} alt="gambar">
+                  <img class="flex-shrink-0 w-[38px] rounded-lg" src={`${API_URL}/${post.gambar}`} alt="gambar">
                   <div>
                     <span class="block text-lg font-medium text-gray-800"> {post.judul}</span>
                     <hr>
