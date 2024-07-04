@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
 
-
+//komentar
 let editing = false;
 let limit = '5';
 let page = 1;
