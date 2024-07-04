@@ -1,11 +1,31 @@
+<script lang="ts">
+  import { onMount } from "svelte";
+  import { PUBLIC_API_URL as API_URL } from '$env/static/public';
+
+  let posts : any[]=[];
+  let totalPage = 0;
+
+  async function loadData(){
+    const respon = await fetch(`${API_URL}/api/posting?page=1&limit=4`);
+    const data = await respon.json();
+    posts = data.posts;
+    totalPage = data.totalPage;
+  }
+</script>
+onMount(()=> {
+
+})
+
 <div class="container mx-auto">
 
   <!-- Card Blog -->
   <div class="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
     <!-- Grid -->
     <div class="grid lg:grid-cols-2 lg:gap-y-16 gap-10">
+      {#each posts as post }
+        
       <!-- Card -->
-      <a class="group rounded-xl overflow-hidden" href="#">
+      <a class="group rounded-xl overflow-hidden" href={`/posting/${post.id}`}>
         <div class="sm:flex">
           <div class="flex-shrink-0 relative rounded-xl overflow-hidden w-full sm:w-56 h-44">
             <img class="group-hover:scale-105 transition-transform duration-500 ease-in-out size-full absolute top-0 start-0 object-cover rounded-xl" src="https://images.unsplash.com/photo-1540575861501-7cf05a4b125a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80" alt="Image Description">
@@ -25,6 +45,7 @@
           </div>
         </div>
       </a>
+      {/each}
       <!-- End Card -->
 
       <!-- Card -->

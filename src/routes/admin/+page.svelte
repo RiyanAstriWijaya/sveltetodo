@@ -32,13 +32,25 @@ function prevPage(){
 onMount(()=>{
   loadBlog()
 })
-
-function editPosting() {
+let idPost = 0;
+function editPosting(i?: number) {
   editing = true;
+  if (i != undefined){
+  judul = posts[i].judul;
+  kategori = posts[i].kategori.toString();
+  deskripsi = posts[i].deskripsi;
+  gambar = posts[i].gambar;
+  idPost = posts[i].id
+}
 }
 
 function cancelEdit() {
   editing = false;
+  judul = '';
+  kategori = '';
+  deskripsi = '1';
+  gambar = null;
+  idPost = 0;
 }
 
 let judul = '';
@@ -61,13 +73,27 @@ async function savePost() {
   formData.append('deskripsi', deskripsi);
   formData.append('gambar', gambar);
 
-  await fetch('/api/posting', {
-    method: 'POST',
+  let url = `${API_URL}/api/posting`;
+  if(idPost > 0){
+    url += `/${idPost}`
+  }
+
+  await fetch(url, {
+    method: idPost > 0 ? 'PUT' : 'POST',
     body: formData
   });
 
+  
   cancelEdit();
   loadBlog()
+}
+async function hapusPosting(id:number) {
+  if(confirm('apakah anda yakin')){
+    await fetch(`${API_URL}/api/posting/${id}`, {
+      method: "DELETE"
+    });
+  loadBlog()
+}
 }
 </script>
 
@@ -127,7 +153,7 @@ async function savePost() {
         </thead>
 
         <tbody class="divide-y divide-gray-200">
-          {#each posts as post }                      
+          {#each posts as post,i }                      
           <tr class="bg-white hover:bg-gray-50">
             <td class="size-px align-top w-[75%]">
               <div class="block p-6">
@@ -153,10 +179,10 @@ async function savePost() {
             </td>
             <td class="size-px whitespace-nowrap align-top">
               <div class="flex p-6 justify-end">
-                <button class="block px-2 text-blue-700">
+                <button on:click={() => editPosting(i)} class="block px-2 text-blue-700">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
                 </button>
-                <button class="block px-2 text-red-700">
+                <button on:click={() => hapusPosting(post.id)} class="block px-2 text-red-700">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
                 </button>
               </div>
